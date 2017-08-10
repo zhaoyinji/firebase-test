@@ -15,39 +15,34 @@ import { FlashMessagesModule } from 'angular2-flash-messages';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
-import { ListingsComponent } from './components/listings/listings.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { ListingComponent } from './components/listing/listing.component';
-import { AddListingComponent } from './components/add-listing/add-listing.component';
-import { EditListingComponent } from './components/edit-listing/edit-listing.component';
 import { LoginComponent } from './components/login/login.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { MembersComponent } from './components/members/members.component';
 import { EmailComponent } from './components/email/email.component';
+import { MyProfileComponent } from './components/my-profile/my-profile.component';
+import { MessageComponent } from './components/message/message.component';
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent},
+  {path: 'profile', component: MyProfileComponent, canActivate: [AuthGuard]},
+  {path: 'message', component: MessageComponent, canActivate: [AuthGuard]},
   {path: 'email', component: EmailComponent},
   {path: 'signup', component: SignupComponent},
-  {path: 'members', component: MembersComponent, canActivate: [AuthGuard]},
-  {path: 'listings', component: ListingsComponent, canActivate: [AuthGuard]},
-  {path: 'add-listing', component: AddListingComponent, canActivate: [AuthGuard]},
-  {path: 'listing/:id', component: ListingComponent, canActivate: [AuthGuard]}
+  {path: 'members', component: MembersComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    ListingsComponent,
     NavbarComponent,
-    ListingComponent,
-    AddListingComponent,
-    EditListingComponent,
     LoginComponent,
     SignupComponent,
     MembersComponent,
     EmailComponent,
+    MyProfileComponent,
+    MessageComponent,
   ],
   imports: [
     BrowserModule,

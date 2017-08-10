@@ -1,0 +1,20 @@
+<form [formGroup]="myForm" (ngSubmit)="onAddSubmit(myForm.value)">
+  <div class="form-group">
+    <label>First name:</label>
+    <input type="text" class="form-control" placeholder="First name" formControlName="firstName" required>
+  </div>
+  <div class="form-group">
+    <label>Last name:</label>
+    <input type="text" class="form-control" placeholder="Last name" formControlName="lastName" required>
+  </div>
+  <div class="form-group">
+    <label>Photo</label>
+    <img style="width:200px" *ngIf="!!imageUrl" class="thumbnail" src="{{ imageUrl }}">
+    <input class="form-control" type="file" accept="image/*" id="image" name="image" (change)="detectFile($event)">
+  </div>
+  <div class="form-group">
+    <button type="submit" [disabled]="!myForm.valid" class="btn btn-primary">
+      Save
+    </button>
+  </div>
+</form>

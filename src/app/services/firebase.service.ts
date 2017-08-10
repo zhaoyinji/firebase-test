@@ -1,46 +1,71 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2/database';
-import { Listing } from '../Listing';
+import { Member } from '../models/member';
 import { environment } from '../../environments/environment';
+import { FlashMessagesService } from 'angular2-flash-messages';
 import * as firebase from 'firebase';
 
 firebase.initializeApp(environment.firebase);
 
 @Injectable()
 export class FirebaseService {
-  listings: FirebaseListObservable<any []>;
-  listing: FirebaseObjectObservable<any>;
+  members: FirebaseListObservable<any[]>;
+  member: FirebaseObjectObservable<Member>;
   private basePath: string;
   private uploadTask: firebase.storage.UploadTask;
 
-  constructor(public db: AngularFireDatabase) {
+  constructor(
+    public db: AngularFireDatabase,
+    public flashMessage: FlashMessagesService
+  ) {
     this.basePath = '/uploads';
-    this.listings = this.db.list('/list/listings') as FirebaseListObservable<Listing[]>;
   }
 
-  getListings() {
-    return this.listings;
+  getMemberDetails(id) {
+    this.member = this.db.object('members/' + id) as FirebaseObjectObservable<Member>;
+    return this.member;
   }
 
-  getListingDetails(id) {
-    this.listing = this.db.object('list/listings/' + id) as FirebaseObjectObservable<Listing>;
-    return this.listing;
+  updateMemberDetails(uid: string, member: Member, selectedFile?: File) {
+    if (!!selectedFile) {
+      const storageRef = firebase.storage().ref();
+      this.uploadTask = storageRef.child(`${this.basePath}/${uid}/${selectedFile.name}`).put(selectedFile);
+
+      this.uploadTask.then(
+        (snapshot) =>  {
+          // upload success
+          member.image = snapshot.downloadURL;
+          this.getMemberDetails(uid).update(member);
+          this.handleSuccess();
+        },
+        (error) => {
+          // upload failed
+          this.handleError(error);
+        }
+      );
+    } else {
+      this.getMemberDetails(uid).update(member);
+      this.handleSuccess();
+    }
   }
 
-  addListing(listing: Listing, selectedFile: File) {
+  getFileUrl(uid: string, fileName: string) {
     const storageRef = firebase.storage().ref();
-    this.uploadTask = storageRef.child(`${this.basePath}/${selectedFile.name}`).put(selectedFile);
+    return storageRef.child(`${this.basePath}/${uid}/${fileName}`).getDownloadURL();
+  }
 
-    this.uploadTask.on('value',
-      (snapshot) =>  {
-        // upload success
-        listing.image = selectedFile.name;
-        return this.listings.push(listing);
-      },
-      (error) => {
-        // upload failed
-        console.log(error);
-      }
-    );
+  listMembers() {
+    this.members = this.db.list('members') as FirebaseListObservable<any[]>;
+    return this.members;
+  }
+
+  handleSuccess() {
+    this.flashMessage.show('The changes are saved.',
+    {cssClass: 'alert-success', timeout: 3000});
+  }
+
+  handleError(error: Error) {
+    this.flashMessage.show(error.message,
+    {cssClass: 'alert-danger', timeout: 3000});
   }
 }
